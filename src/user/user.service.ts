@@ -39,4 +39,15 @@ export class UserService {
 
     return user;
   }
+
+  async getUserByIdUsingReferences(userId: number): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: ['addresses'],
+    });
+
+    return user as UserEntity;
+  }
 }

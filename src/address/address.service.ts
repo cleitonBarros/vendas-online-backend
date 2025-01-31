@@ -1,4 +1,4 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AddressEntity } from './entities/address.entity';
 import { Repository } from 'typeorm';
@@ -16,7 +16,7 @@ export class AddressService {
   ) {}
 
   async createAddress(
-    @Body() createAddressDto: CreateAddressDto,
+    createAddressDto: CreateAddressDto,
     userId: number,
   ): Promise<AddressEntity> {
     await this.userService.findUserById(userId);
