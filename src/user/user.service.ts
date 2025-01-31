@@ -12,18 +12,37 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async createUser(createUserDto: CreateUserDto) {
     const passwordhashed = await hash(createUserDto.password, 10);
 
-    return this.userRepository.save({
+    await this.userRepository.save({
       ...createUserDto,
       typeUser: 1,
       password: passwordhashed,
     });
+
+    return;
   }
 
   async getAllUser(): Promise<UserEntity[]> {
     return this.userRepository.find();
+  }
+
+  async getUserByIdUsingRelations(userId: number): Promise<UserEntity> {
+    const user = (await this.userRepository.findOne({
+      where: {
+        id: userId,
+      },
+      relations: {
+        addresses: {
+          city: {
+            state: true,
+          },
+        },
+      },
+    })) as UserEntity;
+
+    return user;
   }
 
   async findUserById(userId: number): Promise<UserEntity> {
@@ -40,19 +59,16 @@ export class UserService {
     return user;
   }
 
-  async getUserByIdUsingRelations(userId: number): Promise<UserEntity> {
-    const user = (await this.userRepository.findOne({
+  async findUserByEmail(email: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
       where: {
-        id: userId,
+        email,
       },
-      relations: {
-        addresses: {
-          city: {
-            state: true,
-          },
-        },
-      },
-    })) as UserEntity;
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Email: ${email}  Not Found`);
+    }
 
     return user;
   }
